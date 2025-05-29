@@ -1,10 +1,7 @@
 # Laravel általános kizárások
 /vendor/
-/node_modules/
 /public/storage
 /storage/*.key
-.env
-.env.*
 .phpunit.result.cache
 Homestead.yaml
 Homestead.json
