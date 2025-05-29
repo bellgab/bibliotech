@@ -133,7 +133,7 @@
                     <h5 class="mb-0">Fines History (Paid)</h5>
                 </div>
                 <div class="card-body">
-                    <?php if($returnedOverdueBooks->count() > 0): ?>
+                    <?php if($finesData->count() > 0): ?>
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -148,12 +148,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $__currentLoopData = $returnedOverdueBooks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $borrow): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php $__currentLoopData = $finesData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $borrow): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <?php
                                             $daysLate = $borrow->returned_at && $borrow->due_date 
                                                 ? $borrow->returned_at->diffInDays($borrow->due_date) 
                                                 : 0;
-                                            $fineAmount = $daysLate * 5.0; // $5 per day fine
                                         ?>
                                         <tr>
                                             <td>
@@ -190,7 +189,7 @@
                                             </td>
                                             <td>
                                                 <span class="fw-bold text-success">
-                                                    $<?php echo e(number_format($fineAmount, 2)); ?>
+                                                    $<?php echo e(number_format($borrow->fine_amount, 2)); ?>
 
                                                 </span>
                                             </td>
@@ -201,7 +200,7 @@
                         </div>
 
                         <!-- Pagination could go here if needed -->
-                        <?php if($returnedOverdueBooks->count() >= 50): ?>
+                        <?php if($finesData->count() >= 50): ?>
                             <div class="mt-3">
                                 <p class="text-muted">Showing recent fines. Contact admin for complete history.</p>
                             </div>
@@ -225,39 +224,19 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span>Books with Fines:</span>
-                                <span class="fw-bold"><?php echo e($returnedOverdueBooks->count()); ?></span>
+                                <span class="fw-bold"><?php echo e($finesData->count()); ?></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span>Average Fine:</span>
                                 <span class="fw-bold">
-                                    <?php
-                                        $avgFine = $returnedOverdueBooks->count() > 0 
-                                            ? $returnedOverdueBooks->map(function($borrow) {
-                                                $daysLate = $borrow->returned_at && $borrow->due_date 
-                                                    ? $borrow->returned_at->diffInDays($borrow->due_date) 
-                                                    : 0;
-                                                return $daysLate * 5.0;
-                                            })->avg() 
-                                            : 0;
-                                    ?>
-                                    $<?php echo e(number_format($avgFine, 2)); ?>
+                                    $<?php echo e($finesData->count() > 0 ? number_format($finesData->avg('fine_amount'), 2) : '0.00'); ?>
 
                                 </span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span>Highest Fine:</span>
                                 <span class="fw-bold text-danger">
-                                    <?php
-                                        $maxFine = $returnedOverdueBooks->count() > 0 
-                                            ? $returnedOverdueBooks->map(function($borrow) {
-                                                $daysLate = $borrow->returned_at && $borrow->due_date 
-                                                    ? $borrow->returned_at->diffInDays($borrow->due_date) 
-                                                    : 0;
-                                                return $daysLate * 5.0;
-                                            })->max() 
-                                            : 0;
-                                    ?>
-                                    $<?php echo e(number_format($maxFine, 2)); ?>
+                                    $<?php echo e($finesData->count() > 0 ? number_format($finesData->max('fine_amount'), 2) : '0.00'); ?>
 
                                 </span>
                             </div>

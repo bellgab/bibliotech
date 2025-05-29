@@ -193,6 +193,20 @@ RUN docker-php-ext-install \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # =====================================================================
+# NODE.JS ÉS NPM TELEPÍTÉSE
+# =====================================================================
+# Frontend eszközökhöz (Vite, Vue.js, React, SCSS compilation)
+# Laravel Mix/Vite használatához szükséges
+
+# NodeSource repository hozzáadása és Node.js 18.x telepítése
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    # NPM cache tisztítása
+    && npm cache clean --force \
+    # Apt cache törlése
+    && rm -rf /var/lib/apt/lists/*
+
+# =====================================================================
 # EGYÉNI PHP KONFIGURÁCIÓ
 # =====================================================================
 # A php.ini fájl testreszabott beállításokat tartalmaz a Laravel optimalizálásához
