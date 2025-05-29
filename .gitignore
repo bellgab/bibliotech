@@ -1,0 +1,32 @@
+# Laravel általános kizárások
+/vendor/
+/node_modules/
+/public/storage
+/storage/*.key
+.env
+.env.*
+.phpunit.result.cache
+Homestead.yaml
+Homestead.json
+/.idea
+/.vscode
+/.phpunit.cache
+/.DS_Store
+
+# PostgreSQL (pgp) specifikus kizárások
+*.pgsql
+*.sql
+*.dump
+*.backup
+*.pgpass
+*.pg_service.conf
+*.pgadmin
+*.pgdata
+*.pg_log
+*.pg_stat_tmp
+*.pg_replslot
+*.pg_tblspc
+*.pg_xlog
+*.pg_wal
+*.pgsnap
+*.pgsaves
