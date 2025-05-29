@@ -48,6 +48,14 @@ echo "🔄 Laravel migrációk futtatása..."
 # Egyszerű migráció futtatás
 if php artisan migrate --force 2>/dev/null; then
     echo "✅ Migrációk sikeresen lefutottak!"
+    
+    # Seederek futtatása csak akkor, ha a migrációk sikeresek voltak
+    echo "🌱 Mintaadatok betöltése..."
+    if php artisan db:seed --force 2>/dev/null; then
+        echo "✅ Mintaadatok sikeresen betöltve!"
+    else
+        echo "⚠️ Seeder probléma, de folytatjuk..."
+    fi
 else
     echo "⚠️ Migráció probléma, de folytatjuk..."
 fi

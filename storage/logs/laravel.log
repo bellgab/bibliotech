@@ -3052,3 +3052,18 @@
 [2025-05-29 07:16:00] local.INFO: Login request received {"method":"POST","url":"http://localhost:8080/login","session_id":"XoTdtLYGZkDcJsE94XXhxkxeqMuTegCfmrRXjcJz","csrf_token":"xuDYD2MCLMIOVrLnhx41WGPk1WA9A446JMtIqzI9","request_token":"xuDYD2MCLMIOVrLnhx41WGPk1WA9A446JMtIqzI9","has_session":true} 
 [2025-05-29 07:16:00] local.INFO: Login attempt {"email":"admin@bibliotech.hu","credentials":{"email":"admin@bibliotech.hu","password":"password"}} 
 [2025-05-29 07:16:01] local.INFO: Login successful for: admin@bibliotech.hu  
+[2025-05-29 11:46:08] local.INFO: Login request received {"method":"POST","url":"http://localhost:8080/login","session_id":"CKrnqcrfStAxJ6jhw4PcXX5SHQVQM571kt8ElPdB","csrf_token":"UF8trSZay23QxAm1obnuRdLS8Fbp8dItyfTw8s7q","request_token":"UF8trSZay23QxAm1obnuRdLS8Fbp8dItyfTw8s7q","has_session":true} 
+[2025-05-29 11:46:08] local.INFO: Login attempt {"email":"admin@bibliotech.hu","credentials":{"email":"admin@bibliotech.hu","password":"password"}} 
+[2025-05-29 11:46:09] local.INFO: Login failed for: admin@bibliotech.hu  
+[2025-05-29 12:14:21] local.INFO: Login request received {"method":"POST","url":"http://localhost:8080/login","session_id":"CKrnqcrfStAxJ6jhw4PcXX5SHQVQM571kt8ElPdB","csrf_token":"UF8trSZay23QxAm1obnuRdLS8Fbp8dItyfTw8s7q","request_token":"UF8trSZay23QxAm1obnuRdLS8Fbp8dItyfTw8s7q","has_session":true} 
+[2025-05-29 12:14:21] local.INFO: Login attempt {"email":"admin@bibliotech.hu","credentials":{"email":"admin@bibliotech.hu","password":"password"}} 
+[2025-05-29 12:14:21] local.INFO: Login failed for: admin@bibliotech.hu  
+[2025-05-29 12:20:32] local.INFO: Login request received {"method":"POST","url":"http://localhost:8080/login","session_id":"CKrnqcrfStAxJ6jhw4PcXX5SHQVQM571kt8ElPdB","csrf_token":"UF8trSZay23QxAm1obnuRdLS8Fbp8dItyfTw8s7q","request_token":"UF8trSZay23QxAm1obnuRdLS8Fbp8dItyfTw8s7q","has_session":true} 
+[2025-05-29 12:20:32] local.INFO: Login attempt {"email":"admin@bibliotech.hu","credentials":{"email":"admin@bibliotech.hu","password":"password"}} 
+[2025-05-29 12:20:32] local.INFO: Login successful for: admin@bibliotech.hu  
+[2025-05-29 12:45:20] local.INFO: Login request received {"method":"POST","url":"http://localhost:8080/login","session_id":"M5pCFpBMiTc8ZcmdeezSkt2Z5Yo2VWDjP2XlVyfm","csrf_token":"pZFlSv4pZxFRBNg7XjbHMaAtyKQCGTPUDavl9wg3","request_token":"pZFlSv4pZxFRBNg7XjbHMaAtyKQCGTPUDavl9wg3","has_session":true} 
+[2025-05-29 12:45:20] local.INFO: Login attempt {"email":"admin@bibliotech.hu","credentials":{"email":"admin@bibliotech.hu","password":"password"}} 
+[2025-05-29 12:45:20] local.INFO: Login failed for: admin@bibliotech.hu  
+[2025-05-29 12:45:28] local.INFO: Login request received {"method":"POST","url":"http://localhost:8080/login","session_id":"M5pCFpBMiTc8ZcmdeezSkt2Z5Yo2VWDjP2XlVyfm","csrf_token":"pZFlSv4pZxFRBNg7XjbHMaAtyKQCGTPUDavl9wg3","request_token":"pZFlSv4pZxFRBNg7XjbHMaAtyKQCGTPUDavl9wg3","has_session":true} 
+[2025-05-29 12:45:28] local.INFO: Login attempt {"email":"admin@bibliotech.hu","credentials":{"email":"admin@bibliotech.hu","password":"password"}} 
+[2025-05-29 12:45:28] local.INFO: Login failed for: admin@bibliotech.hu  

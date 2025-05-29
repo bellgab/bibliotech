@@ -31,9 +31,12 @@ docker-compose exec php sed -i 's/DB_DATABASE=laravel/DB_DATABASE=bibliotech/' .
 docker-compose exec php sed -i 's/DB_USERNAME=root/DB_USERNAME=bibliotech_user/' .env
 docker-compose exec php sed -i 's/DB_PASSWORD=/DB_PASSWORD=bibliotech_pass/' .env
 
-### 6. Laravel migráció futtatása
+### 6. Laravel migráció és seederek futtatása
 echo "📊 Adatbázis migrációk futtatása..."
 docker-compose exec php php artisan migrate
+
+echo "🌱 Mintaadatok betöltése..."
+docker-compose exec php php artisan db:seed
 
 ### 7. Composer telepítések
 echo "📦 Composer csomagok telepítése..."
