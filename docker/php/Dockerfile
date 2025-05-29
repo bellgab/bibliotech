@@ -265,6 +265,15 @@ RUN chown -R www:www /var/www/html && \
     chmod -R 755 /var/www/html
 
 # =====================================================================
+# ENTRYPOINT SCRIPT HOZZÁADÁSA
+# =====================================================================
+# Az entrypoint script automatikusan inicializálja a Laravel alkalmazást
+# konténer indításkor, beleértve a migrációk futtatását
+# Root-ként másoljuk be, hogy megfelelő jogosultságokkal rendelkezzen
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# =====================================================================
 # AKTÍV FELHASZNÁLÓ VÁLTÁSA
 # =====================================================================
 # 
@@ -274,10 +283,10 @@ RUN chown -R www:www /var/www/html && \
 # - Nincs root jogosultság a futó alkalmazásnak
 # - Biztonsági szempontból optimális
 # 
-# FONTOS: Ez a sor után már nem tudunk root jogosultságot igénylő
-# műveleteket végezni (pl. apt-get install)
+# FONTOS: Az entrypoint script root-ként fut, majd a PHP-FPM 
+# a www felhasználóként indul el
 
-USER www
+# USER www  # Kommentezzük ki, hogy az entrypoint root jogokkal fusson
 
 # =====================================================================
 # ALTERNATIVE APPROACHES:
@@ -350,6 +359,15 @@ EXPOSE 9000
 # CMD: könnyen felülírható docker run-nál
 # ENTRYPOINT: mindig futni fog, CMD csak paraméterként lesz hozzáadva
 
+# =====================================================================
+# ENTRYPOINT SCRIPT HOZZÁADÁSA
+# =====================================================================
+# Az entrypoint script automatikusan inicializálja a Laravel alkalmazást
+# konténer indításkor, beleértve a migrációk futtatását
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]
 
 # =====================================================================

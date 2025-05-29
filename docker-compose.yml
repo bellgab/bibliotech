@@ -34,8 +34,7 @@
 # PostgreSQL közvetlen: localhost:5433
 
 # Docker Compose verzió specifikáció
-# A 3.8 verzió támogatja a modern Docker funkciókat
-version: '3.8'
+# A version mező elavult az újabb Docker Compose verziókban
 
 # =====================================================================
 # SZOLGÁLTATÁSOK (SERVICES) DEFINÍCIÓI
