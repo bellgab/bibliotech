@@ -66,6 +66,20 @@
                                 <th>Kölcsönzött:</th>
                                 <td>{{ $book->total_copies - $book->available_copies }} db</td>
                             </tr>
+                            @if($book->reviews_count > 0)
+                            <tr>
+                                <th>Értékelés:</th>
+                                <td>
+                                    <div class="text-warning">
+                                        {!! $book->stars_display !!}
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ number_format($book->average_rating, 1) }}/5 
+                                        ({{ $book->reviews_count }} értékelés)
+                                    </small>
+                                </td>
+                            </tr>
+                            @endif
                         </table>
                     </div>
                     <div class="col-md-6">
@@ -75,6 +89,99 @@
                         @endif
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Értékelések</h5>
+                @auth
+                    @php
+                        $userReview = $book->reviews()->where('user_id', auth()->id())->first();
+                    @endphp
+                    @if(!$userReview)
+                        <a href="{{ route('reviews.create', ['book_id' => $book->id]) }}" 
+                           class="btn btn-sm btn-primary">
+                            <i class="fas fa-star"></i> Értékelés írása
+                        </a>
+                    @endif
+                @endauth
+            </div>
+            <div class="card-body">
+                @php
+                    $approvedReviews = $book->approvedReviews()->with('user')->latest()->get();
+                @endphp
+                
+                @if($approvedReviews->count() > 0)
+                    @foreach($approvedReviews as $review)
+                        <div class="review-item {{ !$loop->last ? 'border-bottom' : '' }} pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <strong class="me-3">{{ $review->user->name }}</strong>
+                                        <div class="text-warning me-2">
+                                            {!! $review->stars_display !!}
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ $review->created_at->format('Y.m.d') }}
+                                        </small>
+                                    </div>
+                                    @if($review->comment)
+                                        <p class="mb-0">{{ $review->comment }}</p>
+                                    @endif
+                                </div>
+                                @if($review->canBeEditedBy(auth()->user()))
+                                    <div class="ms-3">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                    type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('reviews.edit', $review) }}">
+                                                        <i class="fas fa-edit"></i> Szerkesztés
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <form method="POST" action="{{ route('reviews.destroy', $review) }}" 
+                                                          class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item text-danger"
+                                                                onclick="return confirm('Biztosan törölni szeretnéd ezt az értékelést?')">
+                                                            <i class="fas fa-trash"></i> Törlés
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                    
+                    @if($approvedReviews->count() >= 5)
+                        <div class="text-center">
+                            <a href="{{ route('reviews.index', ['book_id' => $book->id]) }}" 
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-eye"></i> Összes értékelés megtekintése
+                            </a>
+                        </div>
+                    @endif
+                @else
+                    <div class="text-center py-4">
+                        <i class="fas fa-star fa-2x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">Ez a könyv még nem rendelkezik értékeléssel.</p>
+                        @auth
+                            @if(!$book->reviews()->where('user_id', auth()->id())->exists())
+                                <p class="text-muted">Legyél te az első, aki értékeli!</p>
+                            @endif
+                        @endauth
+                    </div>
+                @endif
             </div>
         </div>
     </div>

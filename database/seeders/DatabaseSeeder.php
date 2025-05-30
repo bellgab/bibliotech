@@ -212,6 +212,9 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
+        // Seed book reviews
+        $this->call(BookReviewSeeder::class);
+
         echo "Database seeding completed successfully!\n";
         echo "Admin credentials: admin@bibliotech.hu / password\n";
         echo "Librarian credentials: librarian@bibliotech.hu / password\n";

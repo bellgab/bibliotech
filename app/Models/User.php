@@ -59,6 +59,14 @@ class User extends Authenticatable
     }
 
     /**
+     * The book reviews that belong to the user.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(BookReview::class);
+    }
+
+    /**
      * The books that the user has borrowed.
      */
     public function borrowedBooks(): BelongsToMany

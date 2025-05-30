@@ -45,7 +45,7 @@
 
 <!-- Quick Statistics -->
 <div class="row mb-4">
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <div class="display-4 text-primary mb-2">
@@ -60,14 +60,14 @@
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <div class="display-4 text-info mb-2">
                     <i class="bi bi-people-fill"></i>
                 </div>
                 <h3 class="mb-1"><?php echo e(number_format($stats['total_users'])); ?></h3>
-                <p class="text-muted mb-0">Regisztrált felhasználó</p>
+                <p class="text-muted mb-0">Felhasználó</p>
                 <small class="text-success">
                     <i class="bi bi-arrow-up"></i> +<?php echo e($trending['new_users_this_month']); ?> ez a hónap
                 </small>
@@ -75,7 +75,7 @@
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <div class="display-4 text-warning mb-2">
@@ -90,14 +90,14 @@
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <div class="display-4 text-danger mb-2">
                     <i class="bi bi-exclamation-triangle-fill"></i>
                 </div>
                 <h3 class="mb-1"><?php echo e(number_format($stats['overdue_books'])); ?></h3>
-                <p class="text-muted mb-0">Lejárt kölcsönzés</p>
+                <p class="text-muted mb-0">Lejárt</p>
                 <?php if($stats['overdue_books'] > 0): ?>
                     <small class="text-danger">
                         <i class="bi bi-bell"></i> Figyelmet igényel
@@ -105,6 +105,42 @@
                 <?php else: ?>
                     <small class="text-success">
                         <i class="bi bi-check"></i> Minden rendben
+                    </small>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="display-4 text-secondary mb-2">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <h3 class="mb-1"><?php echo e(number_format($stats['total_reviews'])); ?></h3>
+                <p class="text-muted mb-0">Értékelések</p>
+                <small class="text-info">
+                    <i class="bi bi-arrow-up"></i> +<?php echo e($trending['reviews_this_month']); ?> ez a hónap
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="display-4 text-warning mb-2">
+                    <i class="bi bi-clock-fill"></i>
+                </div>
+                <h3 class="mb-1"><?php echo e(number_format($stats['pending_reviews'])); ?></h3>
+                <p class="text-muted mb-0">Jóváhagyásra vár</p>
+                <?php if($stats['pending_reviews'] > 0): ?>
+                    <small class="text-warning">
+                        <i class="bi bi-bell"></i> Figyelmet igényel
+                    </small>
+                <?php else: ?>
+                    <small class="text-success">
+                        <i class="bi bi-check"></i> Minden jóváhagyott
                     </small>
                 <?php endif; ?>
             </div>

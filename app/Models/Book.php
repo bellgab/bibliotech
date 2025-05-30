@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
 {
@@ -67,6 +68,22 @@ class Book extends Model
     }
 
     /**
+     * Get all reviews for this book.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(BookReview::class);
+    }
+
+    /**
+     * Get approved reviews for this book.
+     */
+    public function approvedReviews(): HasMany
+    {
+        return $this->reviews()->approved();
+    }
+
+    /**
      * Check if the book is available for borrowing.
      */
     public function isAvailable(): bool
@@ -80,5 +97,30 @@ class Book extends Model
     public function getBorrowedCopiesAttribute(): int
     {
         return $this->total_copies - $this->available_copies;
+    }
+
+    /**
+     * Get the average rating for this book.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->approvedReviews()->avg('rating') ?? 0;
+    }
+
+    /**
+     * Get the number of reviews for this book.
+     */
+    public function getReviewsCountAttribute(): int
+    {
+        return $this->approvedReviews()->count();
+    }
+
+    /**
+     * Get star rating display.
+     */
+    public function getStarsAttribute(): string
+    {
+        $rating = round($this->average_rating);
+        return str_repeat('★', $rating) . str_repeat('☆', 5 - $rating);
     }
 }

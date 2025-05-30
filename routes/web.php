@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\ReportController;
@@ -119,6 +120,10 @@ Route::middleware(['auth'])->group(function () {
     
     // Books
     Route::resource('books', BookController::class);
+    
+    // Book Reviews
+    Route::resource('reviews', ReviewController::class);
+    Route::post('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
     
     // Borrows
     Route::resource('borrows', BorrowController::class);

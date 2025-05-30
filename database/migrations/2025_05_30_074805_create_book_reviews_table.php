@@ -13,7 +13,22 @@ return new class extends Migration
     {
         Schema::create('book_reviews', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('book_id')->constrained()->onDelete('cascade');
+            $table->integer('rating')->unsigned()->min(1)->max(5);
+            $table->text('comment')->nullable();
+            $table->boolean('is_approved')->default(false);
+            $table->timestamp('approved_at')->nullable();
+            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
+
+            // Ensure one review per user per book
+            $table->unique(['user_id', 'book_id']);
+            
+            // Indexes for performance
+            $table->index(['book_id', 'is_approved']);
+            $table->index(['user_id']);
+            $table->index(['rating']);
         });
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\User;
 use App\Models\BookBorrowing;
+use App\Models\BookReview;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -31,6 +32,8 @@ class AdminDashboardController extends Controller
             'overdue_books' => BookBorrowing::whereNull('returned_at')
                                            ->where('due_date', '<', Carbon::now())
                                            ->count(),
+            'total_reviews' => BookReview::count(),
+            'pending_reviews' => BookReview::where('is_approved', false)->count(),
         ];
 
         // Trending statistics
@@ -41,6 +44,7 @@ class AdminDashboardController extends Controller
             'returns_this_month' => BookBorrowing::whereNotNull('returned_at')
                                                  ->where('returned_at', '>=', Carbon::now()->startOfMonth())
                                                  ->count(),
+            'reviews_this_month' => BookReview::where('created_at', '>=', Carbon::now()->startOfMonth())->count(),
         ];
 
         // Popular books (most borrowed)
@@ -70,6 +74,45 @@ class AdminDashboardController extends Controller
                                      ->limit(10)
                                      ->get();
 
+        $recentReviews = BookReview::with(['book', 'user'])
+                                  ->latest('created_at')
+                                  ->limit(10)
+                                  ->get();
+
+        $pendingReviews = BookReview::with(['book', 'user'])
+                                   ->where('is_approved', false)
+                                   ->latest('created_at')
+                                   ->limit(10)
+                                   ->get();
+
+        // Review statistics
+        $reviewStats = [
+            'average_rating' => BookReview::where('is_approved', true)->avg('rating') ?? 0,
+            'reviewed_books_count' => Book::whereHas('reviews', function($query) {
+                $query->where('is_approved', true);
+            })->count(),
+            'rating_distribution' => []
+        ];
+
+        // Rating distribution
+        for ($i = 1; $i <= 5; $i++) {
+            $reviewStats['rating_distribution'][$i] = BookReview::where('is_approved', true)
+                                                               ->where('rating', $i)
+                                                               ->count();
+        }
+
+        // Top rated books
+        $topRatedBooks = Book::withAvg(['reviews' => function($query) {
+                                $query->where('is_approved', true);
+                            }], 'rating')
+                            ->withCount(['reviews' => function($query) {
+                                $query->where('is_approved', true);
+                            }])
+                            ->having('reviews_count', '>=', 1)
+                            ->orderBy('reviews_avg_rating', 'desc')
+                            ->limit(5)
+                            ->get();
+
         // System health indicators
         $systemHealth = [
             'database_connection' => $this->checkDatabaseConnection(),
@@ -86,6 +129,10 @@ class AdminDashboardController extends Controller
             'notificationStats',
             'recentBorrows',
             'recentReturns',
+            'recentReviews',
+            'pendingReviews',
+            'reviewStats',
+            'topRatedBooks',
             'systemHealth'
         ));
     }
