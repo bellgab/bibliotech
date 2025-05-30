@@ -40,6 +40,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="<?php echo e(route('reviews.index')); ?>">
+                                <i class="bi bi-star"></i> Értékelések
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="<?php echo e(route('borrows.index')); ?>">
                                 <i class="bi bi-arrow-repeat"></i> Kölcsönzések
                             </a>

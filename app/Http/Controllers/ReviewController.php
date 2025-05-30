@@ -9,11 +9,18 @@ use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', BookReview::class);
+        
         $query = BookReview::with(['book.author', 'user']);
 
         // Filter by book if book_id is provided
@@ -57,6 +64,8 @@ class ReviewController extends Controller
      */
     public function create(Request $request)
     {
+        $this->authorize('create', BookReview::class);
+        
         $book = null;
         if ($request->has('book_id')) {
             $book = Book::findOrFail($request->get('book_id'));
@@ -81,6 +90,8 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', BookReview::class);
+        
         $validated = $request->validate([
             'book_id' => 'required|exists:books,id',
             'rating' => 'required|integer|min:1|max:5',
@@ -123,6 +134,8 @@ class ReviewController extends Controller
      */
     public function show(BookReview $review)
     {
+        $this->authorize('view', $review);
+        
         $review->load(['book.author', 'user', 'approvedBy']);
         return view('reviews.show', compact('review'));
     }
@@ -132,10 +145,7 @@ class ReviewController extends Controller
      */
     public function edit(BookReview $review)
     {
-        if (!$review->canBeEditedBy(Auth::user())) {
-            return redirect()->route('reviews.index')
-                           ->with('error', 'Ezt az értékelést nem szerkesztheted!');
-        }
+        $this->authorize('update', $review);
 
         return view('reviews.edit', compact('review'));
     }
@@ -145,10 +155,7 @@ class ReviewController extends Controller
      */
     public function update(Request $request, BookReview $review)
     {
-        if (!$review->canBeEditedBy(Auth::user())) {
-            return redirect()->route('reviews.index')
-                           ->with('error', 'Ezt az értékelést nem szerkesztheted!');
-        }
+        $this->authorize('update', $review);
 
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
@@ -166,17 +173,7 @@ class ReviewController extends Controller
      */
     public function destroy(BookReview $review)
     {
-        if (!$review->canBeEditedBy(Auth::user()) && !Auth::user()->is_admin) {
-            if (request()->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ezt az értékelést nem törölheted!'
-                ], 403);
-            }
-            
-            return redirect()->route('reviews.index')
-                           ->with('error', 'Ezt az értékelést nem törölheted!');
-        }
+        $this->authorize('delete', $review);
 
         $book = $review->book;
         $review->delete();
@@ -197,17 +194,7 @@ class ReviewController extends Controller
      */
     public function approve(BookReview $review)
     {
-        if (!Auth::user()->is_admin && !Auth::user()->is_librarian) {
-            if (request()->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Nincs jogosultságod értékelések jóváhagyásához!'
-                ], 403);
-            }
-            
-            return redirect()->route('reviews.index')
-                           ->with('error', 'Nincs jogosultságod értékelések jóváhagyásához!');
-        }
+        $this->authorize('approve', $review);
 
         $review->approve(Auth::user());
 

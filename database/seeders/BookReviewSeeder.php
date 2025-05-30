@@ -16,7 +16,7 @@ class BookReviewSeeder extends Seeder
     public function run(): void
     {
         // Get some users and books
-        $users = User::where('is_admin', false)->take(10)->get();
+        $users = User::whereNotIn('membership_type', ['admin', 'librarian'])->take(10)->get();
         $books = Book::take(15)->get();
 
         if ($users->isEmpty() || $books->isEmpty()) {
@@ -69,7 +69,7 @@ class BookReviewSeeder extends Seeder
                 // 80% chance to be approved, 20% pending
                 $isApproved = rand(1, 100) <= 80;
                 $approvedAt = $isApproved ? now()->subDays(rand(1, 30)) : null;
-                $approvedBy = $isApproved ? User::where('is_admin', true)->first()?->id : null;
+                $approvedBy = $isApproved ? User::where('membership_type', 'admin')->first()?->id : null;
 
                 BookReview::create([
                     'user_id' => $user->id,

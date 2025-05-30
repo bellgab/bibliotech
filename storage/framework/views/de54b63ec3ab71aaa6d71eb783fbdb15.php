@@ -211,6 +211,162 @@
     </div>
 </div>
 
+<!-- Reviews Management -->
+<?php if($stats['pending_reviews'] > 0): ?>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-fill text-warning"></i> Jóváhagyásra váró értékelések</h5>
+                <a href="<?php echo e(route('reviews.index', ['status' => 'pending'])); ?>" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-eye"></i> Összes megtekintése
+                </a>
+            </div>
+            <div class="card-body">
+                <?php $__currentLoopData = $pendingReviews; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $review): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="row align-items-center py-2 <?php echo e(!$loop->last ? 'border-bottom' : ''); ?>">
+                        <div class="col-md-4">
+                            <strong><?php echo e(Str::limit($review->book->title, 30)); ?></strong><br>
+                            <small class="text-muted"><?php echo e($review->book->author->name); ?></small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <?php for($i = 1; $i <= 5; $i++): ?>
+                                    <i class="bi bi-star<?php echo e($i <= $review->rating ? '-fill' : ''); ?> text-warning"></i>
+                                <?php endfor; ?>
+                                <span class="ms-2"><?php echo e($review->rating); ?>/5</span>
+                            </div>
+                            <small class="text-muted"><?php echo e($review->user->name); ?></small>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted"><?php echo e(Str::limit($review->comment, 50)); ?></small><br>
+                            <small class="text-muted"><?php echo e($review->created_at->format('Y.m.d. H:i')); ?></small>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-success" onclick="approveReview(<?php echo e($review->id); ?>)" title="Jóváhagyás">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                                <a href="<?php echo e(route('reviews.show', $review)); ?>" class="btn btn-outline-primary" title="Megtekintés">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <button class="btn btn-outline-danger" onclick="deleteReview(<?php echo e($review->id); ?>)" title="Törlés">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                
+                <?php if($stats['pending_reviews'] > count($pendingReviews)): ?>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">És még <?php echo e($stats['pending_reviews'] - count($pendingReviews)); ?> értékelés...</small>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- Review Statistics -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-star-fill"></i> Értékelési statisztikák</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <h4 class="text-primary"><?php echo e(number_format($reviewStats['average_rating'], 1)); ?></h4>
+                        <small class="text-muted">Átlagos értékelés</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-info"><?php echo e($reviewStats['reviewed_books_count']); ?></h4>
+                        <small class="text-muted">Értékelt könyv</small>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>5 csillag</span>
+                        <span><?php echo e($reviewStats['rating_distribution'][5] ?? 0); ?></span>
+                    </div>
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: <?php echo e($stats['total_reviews'] > 0 ? (($reviewStats['rating_distribution'][5] ?? 0) / $stats['total_reviews']) * 100 : 0); ?>%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>4 csillag</span>
+                        <span><?php echo e($reviewStats['rating_distribution'][4] ?? 0); ?></span>
+                    </div>
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar bg-info" style="width: <?php echo e($stats['total_reviews'] > 0 ? (($reviewStats['rating_distribution'][4] ?? 0) / $stats['total_reviews']) * 100 : 0); ?>%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>3 csillag</span>
+                        <span><?php echo e($reviewStats['rating_distribution'][3] ?? 0); ?></span>
+                    </div>
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar bg-warning" style="width: <?php echo e($stats['total_reviews'] > 0 ? (($reviewStats['rating_distribution'][3] ?? 0) / $stats['total_reviews']) * 100 : 0); ?>%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>2 csillag</span>
+                        <span><?php echo e($reviewStats['rating_distribution'][2] ?? 0); ?></span>
+                    </div>
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar bg-warning" style="width: <?php echo e($stats['total_reviews'] > 0 ? (($reviewStats['rating_distribution'][2] ?? 0) / $stats['total_reviews']) * 100 : 0); ?>%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>1 csillag</span>
+                        <span><?php echo e($reviewStats['rating_distribution'][1] ?? 0); ?></span>
+                    </div>
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar bg-danger" style="width: <?php echo e($stats['total_reviews'] > 0 ? (($reviewStats['rating_distribution'][1] ?? 0) / $stats['total_reviews']) * 100 : 0); ?>%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-trophy-fill"></i> Legjobban értékelt könyvek</h5>
+            </div>
+            <div class="card-body">
+                <?php $__currentLoopData = $topRatedBooks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $book): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="d-flex justify-content-between align-items-center py-2 <?php echo e(!$loop->last ? 'border-bottom' : ''); ?>">
+                        <div>
+                            <strong><?php echo e(Str::limit($book->title, 25)); ?></strong><br>
+                            <small class="text-muted"><?php echo e($book->author->name); ?></small>
+                        </div>
+                        <div class="text-end">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-star-fill text-warning me-1"></i>
+                                <span class="fw-bold"><?php echo e(number_format($book->average_rating, 1)); ?></span>
+                            </div>
+                            <small class="text-muted"><?php echo e($book->reviews_count); ?> értékelés</small>
+                        </div>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Popular Books and Active Users -->
 <div class="row mb-4">
     <div class="col-md-6">
@@ -337,6 +493,54 @@ function sendNotifications() {
             showToast('success', 'Notifications sent successfully!');
             location.reload(); // Refresh to update counts
         }, 3000);
+    }
+}
+
+function approveReview(reviewId) {
+    if (confirm('Biztosan jóváhagyja ezt az értékelést?')) {
+        fetch(`/reviews/${reviewId}/approve`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', 'Értékelés sikeresen jóváhagyva!');
+                location.reload();
+            } else {
+                showToast('error', 'Hiba történt: ' + (data.message || 'Ismeretlen hiba'));
+            }
+        })
+        .catch(error => {
+            showToast('error', 'Hiba történt az értékelés jóváhagyása során: ' + error.message);
+        });
+    }
+}
+
+function deleteReview(reviewId) {
+    if (confirm('Biztosan törli ezt az értékelést? Ez a művelet nem vonható vissza!')) {
+        fetch(`/reviews/${reviewId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', 'Értékelés sikeresen törölve!');
+                location.reload();
+            } else {
+                showToast('error', 'Hiba történt: ' + (data.message || 'Ismeretlen hiba'));
+            }
+        })
+        .catch(error => {
+            showToast('error', 'Hiba történt az értékelés törlése során: ' + error.message);
+        });
     }
 }
 
