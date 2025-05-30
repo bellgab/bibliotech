@@ -7,11 +7,8 @@
 # 
 # 1. NGINX Webszerver (port 8080) - HTTP kérések kiszolgálása
 # 2. PHP-FPM 8.2 - Laravel alkalmazás futtatása
-# 3. MariaDB 10.5 - Adatbázis szerver (alapértelmezett)
+# 3. MariaDB 10.5 - Adatbázis szerver
 # 4. phpMyAdmin (port 8081) - MariaDB kezelő webes felület
-# 5. PostgreSQL 15 - Alternatív adatbázis szerver (opcionális)
-# 6. pgAdmin 4 (port 8082) - PostgreSQL kezelő webes felület
-# 7. Apache HTTP Server (port 8090) - Alternatív webszerver (oktatási)
 #
 # HASZNÁLATI ÚTMUTATÓ:
 # ===================
@@ -27,11 +24,8 @@
 # ELÉRÉSI PONTOK:
 # ==============
 # Weboldal (NGINX): http://localhost:8080
-# Weboldal (Apache): http://localhost:8090
 # phpMyAdmin (MariaDB): http://localhost:8081
-# pgAdmin (PostgreSQL): http://localhost:8082
 # MariaDB közvetlen: localhost:3306
-# PostgreSQL közvetlen: localhost:5433
 
 # Docker Compose verzió specifikáció
 # A version mező elavult az újabb Docker Compose verziókban
@@ -166,33 +160,33 @@ services:
     restart: unless-stopped
 
   # ===================================================================
-  # PHPMYADMIN KONTÉNER
+  # PHPMYADMIN WEBKEZELŐ KONTÉNER
   # ===================================================================
-  # phpMyAdmin webes felület az adatbázis kényelmes kezeléséhez
+  # phpMyAdmin biztosítja a MariaDB webes felületét
   phpmyadmin:
-    # Hivatalos phpMyAdmin képfájl legfrissebb verziója
+    # Hivatalos phpMyAdmin képfájl
     image: phpmyadmin/phpmyadmin:latest
     
     # Konténer egyedi neve
     container_name: bibliotech_phpmyadmin
     
-    # Port mapping: webes felület elérése
-    # http://localhost:8081 címen érhető el
+    # Port mapping: phpMyAdmin webes felület
     ports:
       - "8081:80"
     
-    # phpMyAdmin konfigurációs környezeti változók
+    # phpMyAdmin specifikus környezeti változók
     environment:
-      # A csatlakozni kívánt MySQL/MariaDB szerver hostneve
+      # MariaDB szerver hostname (szolgáltatás neve)
       PMA_HOST: mariadb
-      # A MySQL/MariaDB szerver portja
+      # MariaDB portja
       PMA_PORT: 3306
-      # Alapértelmezett bejelentkezési felhasználó
+      # Automatikus belépés root felhasználóval (fejlesztési környezethez)
       PMA_USER: root
-      # Alapértelmezett bejelentkezési jelszó
       PMA_PASSWORD: root_password
+      # PHP memória limit növelése nagyobb adatbázisokhoz
+      UPLOAD_LIMIT: 256M
     
-    # Függőség: phpMyAdmin csak a MariaDB indulása után indulhat
+    # Függőség: phpMyAdmin csak a MariaDB elindulása után indul
     depends_on:
       - mariadb
     
@@ -202,358 +196,6 @@ services:
     
     # Újraindítási szabály
     restart: unless-stopped
-
-  # ===================================================================
-  # POSTGRESQL ADATBÁZIS SZOLGÁLTATÁS (ALTERNATÍV/PÁRHUZAMOS)
-  # ===================================================================
-  # 
-  # CÉLJA: MariaDB alternatívaként PostgreSQL tesztelési lehetőség
-  # HASZNÁLAT: Váltás adatbázis motorok között fejlesztés során
-  # ELŐNYÖK: Modern SQL funkciók, JSON támogatás, teljesítmény
-  # BEMUTATÓ: Két különböző adatbázis motor összehasonlítása
-  #
-  # HASZNÁLATI MÓDOK:
-  # 1. Csak PostgreSQL: docker-compose up nginx php postgresql
-  # 2. Csak MariaDB: docker-compose up nginx php mariadb
-  # 3. Mindkét adatbázis: docker-compose up (teljes stack)
-  # 4. Adatbázis váltás: .env fájl módosítása + újraindítás
-  
-  postgresql:
-    # ============================================================
-    # POSTGRESQL IMAGE ÉS VERZIÓ
-    # ============================================================
-    
-    # PostgreSQL 15: LTS verzió, stabil és modern funkciók
-    # ALTERNATÍVÁK: postgres:14, postgres:16, postgres:alpine
-    # Alpine: kisebb méret, de kevesebb előtelepített tool
-    image: postgres:15
-    
-    # Konténer neve (könnyebb debugging és log követés)
-    container_name: bibliotech_postgresql
-    
-    # ============================================================
-    # POSTGRESQL KÖRNYEZETI VÁLTOZÓK
-    # ============================================================
-    
-    environment:
-      # Postgres specifikus változók (eltér a MySQL-től!)
-      POSTGRES_DB: bibliotech_pg          # Adatbázis neve
-      POSTGRES_USER: bibliotech_user      # Felhasználó név  
-      POSTGRES_PASSWORD: bibliotech_pass  # Jelszó (fejlesztési)
-      
-      # PostgreSQL specifikus beállítások
-      # C.UTF-8 locale: univerzális UTF-8 támogatás minden rendszeren
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
-      
-      # Alternatívák (ha elérhető a hoszt rendszeren):
-      # POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
-      # POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=hu_HU.UTF-8 --lc-ctype=hu_HU.UTF-8"
-      
-      # Időzóna beállítása
-      TZ: Europe/Budapest
-      
-      # ========================================================
-      # FEJLESZTÉSI MEGJEGYZÉSEK:
-      # ========================================================
-      # FONTOS: Eltérő változónevek vs MariaDB!
-      # MariaDB: MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD
-      # PostgreSQL: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
-      #
-      # ÉLES KÖRNYEZET: 
-      # - Docker secrets használata jelszavakhoz
-      # - Erős jelszó generálás
-      # - Környezeti változók .env fájlba
-    
-    # ============================================================
-    # HÁLÓZAT ÉS PORTOK
-    # ============================================================
-    
-    ports:
-      # 5433:5432 - eltérő port a MariaDB-től való elkülönítéshez
-      # Host port 5433: konfliktus elkerülése lokális PostgreSQL-lel
-      # Konténer port 5432: PostgreSQL alapértelmezett portja
-      - "5433:5432"
-      
-      # HÁLÓZATI MEGJEGYZÉSEK:
-      # - MariaDB: 3307:3306 (MySQL/MariaDB standard)
-      # - PostgreSQL: 5433:5432 (PostgreSQL standard)
-      # - Párhuzamos futtatás lehetősége
-      # - Külső kliens hozzáférés: localhost:5433
-    
-    # ============================================================
-    # ADATTÁROLÁS ÉS PERZISZTENCIA
-    # ============================================================
-    
-    volumes:
-      # Adatbázis adatok perzisztens tárolása
-      - postgresql_data:/var/lib/postgresql/data
-      
-      # PostgreSQL inicializáló szkriptek
-      - ./docker/postgresql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-      
-      # PostgreSQL konfiguráció (opcionális)
-      # - ./docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-      
-      # Backup scriptek (opcionális)
-      # - ./docker/postgresql/backup:/var/backups:rw
-      
-      # ========================================================
-      # VOLUME MAGYARÁZATOK:
-      # ========================================================
-      # postgresql_data: Named volume (Docker által kezelt)
-      # init.sql: Automatikus adatbázis inicializálás
-      # :ro = read-only, :rw = read-write
-      # /docker-entrypoint-initdb.d/: PostgreSQL auto-exec könyvtár
-    
-    # ============================================================
-    # HÁLÓZAT ÉS SZOLGÁLTATÁS DISCOVERY
-    # ============================================================
-    
-    networks:
-      - bibliotech_network
-      
-    # DNS név: 'postgresql' (más konténerekből elérhető)
-    # Laravel .env példa PostgreSQL-hez:
-    # DB_CONNECTION=pgsql
-    # DB_HOST=postgresql
-    # DB_PORT=5432
-    # DB_DATABASE=bibliotech_pg
-    
-    # ============================================================
-    # EGÉSZSÉGMONITOROZÁS ÉS DIAGNOSZTIKA
-    # ============================================================
-    
-    healthcheck:
-      # PostgreSQL kapcsolat ellenőrzése
-      test: ["CMD-SHELL", "pg_ready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      
-      # Ellenőrzési időközök
-      interval: 30s      # 30 másodpercenként ellenőrzés
-      timeout: 10s       # 10 másodperc válaszidő limit
-      retries: 5         # 5 sikertelen próbálkozás után unhealthy
-      start_period: 60s  # 60 másodperc várakozás az első ellenőrzés előtt
-      
-    # ============================================================
-    # TELJESÍTMÉNY ÉS ERŐFORRÁS KORLÁTOK
-    # ============================================================
-    
-    # Memória és CPU limitek (opcionális, fejlesztéshez)
-    deploy:
-      resources:
-        limits:
-          memory: 1G       # Maximum 1GB RAM
-          cpus: '1.0'      # Maximum 1 CPU mag
-        reservations:
-          memory: 512M     # Minimum 512MB RAM
-          cpus: '0.5'      # Minimum 0.5 CPU mag
-    
-    # ============================================================
-    # ÚJRAINDÍTÁSI SZABÁLYZAT
-    # ============================================================
-    
-    restart: unless-stopped
-    
-    # unless-stopped: automatikus újraindítás, kivéve manuális leállítás
-    # Alternatívák: always, on-failure, no
-
-  # ===================================================================
-  # PGADMIN - POSTGRESQL WEBADMIN FELÜLET (OPCIONÁLIS)
-  # ===================================================================
-  # pgAdmin: PostgreSQL adatbázis kezelő webes felület
-  # Hasonló phpMyAdmin-hoz, de PostgreSQL-hez optimalizált
-  #
-  # HASZNÁLAT:
-  # ==========
-  # URL: http://localhost:8082
-  # Email: admin@bibliotech.com
-  # Jelszó: admin123
-  #
-  # POSTGRESQL KAPCSOLAT BEÁLLÍTÁS pgAdmin-ban:
-  # ==========================================
-  # Host: postgresql (Docker service név)
-  # Port: 5432
-  # Database: bibliotech
-  # Username: bibliotech_user
-  # Password: bibliotech_pass
-  #
-  # CSAK FEJLESZTÉSHEZ!
-  # Ez a konfiguráció NEM alkalmas éles környezetre!
-  pgadmin:
-    # pgAdmin 4 hivatalos Docker image
-    # Web-based PostgreSQL administration and management tool
-    image: dpage/pgadmin4:latest
-    
-    # Konténer egyedi neve
-    container_name: bibliotech_pgadmin
-    
-    # PGADMIN KÖRNYEZETI VÁLTOZÓK
-    environment:
-      # pgAdmin alapértelmezett admin felhasználó email címe
-      # FONTOS: Érvényes email formátum szükséges!
-      PGADMIN_DEFAULT_EMAIL: admin@bibliotech.com
-      
-      # pgAdmin alapértelmezett admin jelszó
-      # ÉLES KÖRNYEZETBEN: erős jelszót használj!
-      PGADMIN_DEFAULT_PASSWORD: admin123
-      
-      # pgAdmin konfigurációs mód
-      # False: nem kér újabb beállításokat első indításkor
-      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'True'
-      
-      # Szerver mód bekapcsolása (multi-user támogatás)
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    
-    # PORT MAPPING
-    ports:
-      # Host port 8082: pgAdmin webes felület
-      # Konténer port 80: pgAdmin belső HTTP portja
-      # Azért 8082, hogy ne ütközzön phpMyAdmin 8081 portjával
-      - "8082:80"
-    
-    # VOLUME MAPPING
-    volumes:
-      # pgAdmin adatok perzisztens tárolása
-      # Beállítások, kapcsolatok, dashboardok megőrzése újraindítás után
-      - pgadmin_data:/var/lib/pgadmin
-    
-    # HÁLÓZATI FÜGGŐSÉGEK
-    depends_on:
-      # pgAdmin csak PostgreSQL indulása után induljon
-      - postgresql
-    
-    # Hálózati kapcsolat
-    networks:
-      - bibliotech_network
-    
-    # HIBAELHÁRÍTÁS TIPPEK:
-    # =====================
-    # 1. Ha nem indul: docker-compose logs pgadmin
-    # 2. Kapcsolódási problémák: ellenőrizd a PostgreSQL konténer állapotát
-    # 3. Bejelentkezési problémák: ellenőrizd a PGADMIN_DEFAULT_EMAIL/PASSWORD értékeket
-    # 4. Lassú betöltés: pgAdmin első indítás több percet is igénybe vehet
-
-  # ===================================================================
-  # APACHE WEBSZERVER KONTÉNER (ALTERNATÍV/OKTATÁSI CÉLOKRA)
-  # ===================================================================
-  # Apache HTTP Server: Az NGINX alternatívája
-  # Célja: Webszerverek összehasonlítása és oktatási demonstráció
-  #
-  # NGINX vs APACHE KÜLÖNBSÉGEK:
-  # ============================
-  # NGINX: Event-driven, aszinkron, kisebb memóriaigény
-  # Apache: Process/thread-based, több modulárisan bővíthető
-  #
-  # HASZNÁLAT:
-  # ==========
-  # URL: http://localhost:8090
-  # Ugyanaz a Laravel alkalmazás, de Apache-on keresztül
-  #
-  # ÖSSZEHASONLÍTÁSI TESZTEK:
-  # ========================
-  # 1. Teljesítmény: ab -n 1000 -c 10 http://localhost:8080/ (NGINX)
-  # 2. Teljesítmény: ab -n 1000 -c 10 http://localhost:8090/ (Apache)
-  # 3. Memóriahasználat: docker stats bibliotech_nginx bibliotech_apache
-  #
-  # OKTATÁSI ÉRTÉKEK:
-  # ================
-  # - .htaccess fájlok használata (Apache-specifikus)
-  # - mod_rewrite vs NGINX rewrite szabályok
-  # - Virtual host konfigurációk különbségei
-  # - PHP integráció módjai (mod_php vs PHP-FPM)
-  apache:
-    # Apache 2.4 hivatalos Docker image PHP támogatással
-    # A php:8.2-apache image tartalmazza a PHP-t is mod_php formában
-    image: php:8.2-apache
-    
-    # Konténer egyedi neve
-    container_name: bibliotech_apache
-    
-    # APACHE KÖRNYEZETI VÁLTOZÓK
-    environment:
-      # Apache szerver név (ServerName direktíva)
-      APACHE_SERVER_NAME: bibliotech-apache.local
-      
-      # Apache document root
-      APACHE_DOCUMENT_ROOT: /var/www/html/public
-      
-      # PHP konfigurációk (mod_php specifikus)
-      PHP_INI_SCAN_DIR: /usr/local/etc/php/conf.d
-    
-    # PORT MAPPING
-    ports:
-      # Host port 8090: Apache alternatív webszerver
-      # Konténer port 80: Apache alapértelmezett HTTP portja
-      - "8090:80"
-    
-    # VOLUME MAPPING
-    volumes:
-      # Laravel alkalmazás kódja (ugyanaz mint NGINX-nél)
-      - .:/var/www/html:delegated
-      
-      # Apache egyedi konfiguráció
-      - ./docker/apache/bibliotech.conf:/etc/apache2/sites-available/bibliotech.conf:ro
-      
-      # PHP konfiguráció (ugyanaz mint PHP-FPM-nél)
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/bibliotech.ini:ro
-      
-      # Apache hibák és hozzáférési naplók
-      - apache_logs:/var/log/apache2
-    
-    # WORKING DIRECTORY
-    working_dir: /var/www/html
-    
-    # COMMAND OVERRIDE
-    # Apache engedélyezi a szükséges modulokat és indítja a szervert
-    command: >
-      bash -c "
-        # Laravel szükséges Apache modulok engedélyezése
-        a2enmod rewrite &&
-        a2enmod headers &&
-        a2enmod ssl &&
-        a2enmod expires &&
-        
-        # Bibliotech site konfigurációjának engedélyezése
-        a2ensite bibliotech.conf &&
-        a2dissite 000-default.conf &&
-        
-        # PHP bővítmények telepítése (ha szükséges)
-        docker-php-ext-install pdo pdo_mysql mysqli &&
-        
-        # Apache indítása foreground módban
-        apache2ctl -D FOREGROUND
-      "
-    
-    # HÁLÓZATI FÜGGŐSÉGEK
-    depends_on:
-      # Apache is használja a MariaDB-t (vagy PostgreSQL-t)
-      - mariadb
-      # - postgresql  # Opcionálisan PostgreSQL-t is használhatja
-    
-    # Hálózati kapcsolat
-    networks:
-      - bibliotech_network
-    
-    # RESTART POLICY
-    restart: unless-stopped
-    
-    # HIBAELHÁRÍTÁS TIPPEK:
-    # =====================
-    # 1. Apache konfigurációs hibák: docker-compose logs apache
-    # 2. PHP hibák: docker-compose exec apache tail -f /var/log/apache2/error.log
-    # 3. Hozzáférési napló: docker-compose exec apache tail -f /var/log/apache2/access.log
-    # 4. Konfiguráció tesztelése: docker-compose exec apache apache2ctl configtest
-    # 5. Modulok listázása: docker-compose exec apache apache2ctl -M
-    # 6. PHP információk: http://localhost:8090/info.php (ha létrehozod)
-    #
-    # TELJESÍTMÉNY ÖSSZEHASONLÍTÁS:
-    # =============================
-    # Apache Bench tesztek:
-    # ab -n 1000 -c 10 http://localhost:8080/ (NGINX)
-    # ab -n 1000 -c 10 http://localhost:8090/ (Apache)
-    #
-    # Siege terheléses teszt:
-    # siege -c 10 -t 30s http://localhost:8080/ (NGINX)
-    # siege -c 10 -t 30s http://localhost:8090/ (Apache)
 
 # =====================================================================
 # HÁLÓZATI KONFIGURÁCIÓ
@@ -584,30 +226,6 @@ volumes:
     # - NFS driver: hálózati tárolás
     # - AWS EBS: cloud storage
     # - Azure Disk: Azure cloud storage
-
-  # PostgreSQL adatok perzisztens tárolása
-  postgresql_data:
-    # Local driver: az adatok a Docker hoszt gépen tárolódnak
-    # Ez biztosítja, hogy az adatbázis adatok megmaradjanak
-    # a konténer leállítása/újraindítása után is
-    driver: local
-    # Alternatívák:
-    # - NFS driver: hálózati tárolás
-    # - AWS EBS: cloud storage
-    # - Azure Disk: Azure cloud storage
-
-  # pgAdmin adatok perzisztens tárolása
-  pgadmin_data:
-    # pgAdmin beállítások, kapcsolatok, dashboardok tárolása
-    # Biztosítja, hogy a pgAdmin konfigurációk megmaradjanak
-    # a konténer újraindítása után
-    driver: local
-
-  # Apache naplók perzisztens tárolása
-  apache_logs:
-    # Apache access.log és error.log fájlok tárolása
-    # Hasznos a teljesítmény összehasonlításhoz és hibaelhárításhoz
-    driver: local
 
 # =====================================================================
 # FEJLESZTŐI TIPPEK ÉS HASZNOS PARANCSOK
