@@ -1,8 +1,6 @@
 # Bibliotech
 Egy könyvtári menedzser, amely lehetővé teszi a könyvek és olvasók nyilvántartását.
-Lényege egy bemutató rendszer megvalósítása, amivel illusztálni lehet a docker Fejlesztői környezetet.
 
-Feltétlenü teljes, oktató dokumentációval kell ellátni mind a kódot, mind a dokcer környezet fájlait.
 
 ## Nyelvezet
 - Felhasználói felület: magyar

@@ -55,6 +55,13 @@
                                     <i class="bi bi-graph-up"></i> Jelentések
                                 </a>
                             </li>
+                            <?php if(auth()->user()->role === 'admin'): ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="<?php echo e(route('admin.dashboard')); ?>">
+                                    <i class="bi bi-speedometer2"></i> Admin Panel
+                                </a>
+                            </li>
+                            <?php endif; ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 </ul>
@@ -122,6 +129,13 @@
                                         <i class="bi bi-graph-up"></i> Jelentések
                                     </a>
                                 </li>
+                                <?php if(auth()->user()->role === 'admin'): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link <?php echo e(request()->routeIs('admin.*') ? 'active' : ''); ?>" href="<?php echo e(route('admin.dashboard')); ?>">
+                                        <i class="bi bi-speedometer2"></i> Admin Panel
+                                    </a>
+                                </li>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </ul>
                     </div>
@@ -175,6 +189,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script src="<?php echo e(asset('js/app.js')); ?>"></script>
+    <!-- CSRF Protection -->
+    <script src="<?php echo e(asset('js/csrf-protection.js')); ?>"></script>
     
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>

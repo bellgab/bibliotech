@@ -99,6 +99,32 @@
                     </button>
                 @endif
                 
+                <!-- QR Code Actions -->
+                <div class="dropdown w-100 mb-2">
+                    <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-qr-code"></i> QR Kód
+                    </button>
+                    <ul class="dropdown-menu w-100">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('books.qr', $book) }}" target="_blank">
+                                <i class="bi bi-eye"></i> QR kód megtekintése
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('qr.book.info', $book) }}" target="_blank">
+                                <i class="bi bi-phone"></i> Mobil nézet
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="copyQrUrl('{{ route('qr.book.info', $book) }}')">
+                                <i class="bi bi-clipboard"></i> Link másolása
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
                 <a href="{{ route('books.index') }}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-arrow-left"></i> Vissza a listához
                 </a>
@@ -133,4 +159,29 @@
         @endif
     </div>
 </div>
+
+<script>
+function copyQrUrl(url) {
+    navigator.clipboard.writeText(url).then(function() {
+        // Success feedback
+        const toast = document.createElement('div');
+        toast.className = 'toast position-fixed top-0 end-0 m-3';
+        toast.innerHTML = `
+            <div class="toast-body bg-success text-white">
+                <i class="bi bi-check-circle"></i> QR link vágólapra másolva!
+            </div>
+        `;
+        document.body.appendChild(toast);
+        
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }).catch(function(err) {
+        alert('Hiba történt a másolás során: ' + err);
+    });
+}
+</script>
 @endsection

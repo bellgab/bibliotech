@@ -55,6 +55,13 @@
                                     <i class="bi bi-graph-up"></i> Jelentések
                                 </a>
                             </li>
+                            @if(auth()->user()->role === 'admin')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                                    <i class="bi bi-speedometer2"></i> Admin Panel
+                                </a>
+                            </li>
+                            @endif
                         @endif
                     @endauth
                 </ul>
@@ -121,6 +128,13 @@
                                         <i class="bi bi-graph-up"></i> Jelentések
                                     </a>
                                 </li>
+                                @if(auth()->user()->role === 'admin')
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                                        <i class="bi bi-speedometer2"></i> Admin Panel
+                                    </a>
+                                </li>
+                                @endif
                             @endif
                         </ul>
                     </div>
@@ -172,6 +186,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script src="{{ asset('js/app.js') }}"></script>
+    <!-- CSRF Protection -->
+    <script src="{{ asset('js/csrf-protection.js') }}"></script>
     
     @stack('scripts')
 </body>
