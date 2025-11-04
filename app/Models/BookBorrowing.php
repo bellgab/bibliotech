@@ -51,6 +51,16 @@ class BookBorrowing extends Model
     }
 
     /**
+     * Accessor for "is_overdue" to be used in views/mails.
+     */
+    public function getIsOverdueAttribute(): bool
+    {
+        return $this->isOverdue();
+    }
+
+    
+
+    /**
      * Calculate fine amount for overdue books.
      */
     public function calculateFine($dailyFineRate = 5.0)

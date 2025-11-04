@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            $table->integer('rating')->unsigned()->min(1)->max(5);
+            // Rating between 1-5; enforce range at application level
+            $table->unsignedTinyInteger('rating');
             $table->text('comment')->nullable();
             $table->boolean('is_approved')->default(false);
             $table->timestamp('approved_at')->nullable();

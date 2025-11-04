@@ -38,80 +38,82 @@ Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Debug routes for CSRF testing
-Route::get('/debug/csrf', function (Illuminate\Http\Request $request) {
-    return response()->json([
-        'csrf_token' => csrf_token(),
-        'session_id' => session()->getId(),
-        'session_driver' => config('session.driver'),
-        'session_cookie' => config('session.cookie'),
-        'app_key_exists' => !empty(config('app.key')),
-        'session_lifetime' => config('session.lifetime'),
-        'secure_cookie' => config('session.secure'),
-        'headers' => $request->headers->all(),
-    ]);
-})->middleware('web');
-
-Route::get('/debug/csrf-form', function () {
-    return view('debug.csrf-test');
-})->middleware('web')->name('debug.csrf.form');
-
-Route::post('/debug/csrf-test', function (Illuminate\Http\Request $request) {
-    $request->validate([
-        'test_field' => 'required|string|max:255'
-    ]);
-    
-    return redirect()->route('debug.csrf.form')->with('success', 'CSRF verification passed! Test field: ' . $request->test_field);
-})->middleware('web')->name('debug.csrf.post');
-
-// CSRF Diagnostics Route
-Route::get('/debug/csrf-diagnostics', function (Illuminate\Http\Request $request) {
-    $sessionData = session()->all();
-    
-    return response()->json([
-        'environment' => [
-            'app_env' => config('app.env'),
-            'app_debug' => config('app.debug'),
+// Debug routes for CSRF testing (local environment only)
+if (app()->environment('local')) {
+    Route::get('/debug/csrf', function (Illuminate\Http\Request $request) {
+        return response()->json([
+            'csrf_token' => csrf_token(),
+            'session_id' => session()->getId(),
+            'session_driver' => config('session.driver'),
+            'session_cookie' => config('session.cookie'),
             'app_key_exists' => !empty(config('app.key')),
-            'app_url' => config('app.url'),
-        ],
-        'session' => [
-            'driver' => config('session.driver'),
-            'lifetime' => config('session.lifetime'),
-            'expire_on_close' => config('session.expire_on_close'),
-            'encrypt' => config('session.encrypt'),
-            'cookie' => config('session.cookie'),
-            'path' => config('session.path'),
-            'domain' => config('session.domain'),
-            'secure' => config('session.secure'),
-            'http_only' => config('session.http_only'),
-            'same_site' => config('session.same_site'),
-        ],
-        'request' => [
-            'method' => $request->method(),
-            'url' => $request->url(),
+            'session_lifetime' => config('session.lifetime'),
+            'secure_cookie' => config('session.secure'),
             'headers' => $request->headers->all(),
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'has_session' => $request->hasSession(),
-        ],
-        'current_session' => [
-            'id' => session()->getId(),
-            'token' => session()->token(),
-            'data_count' => count($sessionData),
-            'regenerated' => session()->isStarted(),
-        ],
-        'middleware' => [
-            'csrf_middleware_loaded' => class_exists('App\Http\Middleware\VerifyCsrfToken'),
-            'session_middleware_loaded' => class_exists('Illuminate\Session\Middleware\StartSession'),
-        ],
-        'storage' => [
-            'session_path' => storage_path('framework/sessions'),
-            'session_path_writable' => is_writable(storage_path('framework/sessions')),
-            'session_files_count' => count(glob(storage_path('framework/sessions/*'))),
-        ]
-    ], 200, [], JSON_PRETTY_PRINT);
-})->middleware('web')->name('debug.csrf.diagnostics');
+        ]);
+    })->middleware('web');
+
+    Route::get('/debug/csrf-form', function () {
+        return view('debug.csrf-test');
+    })->middleware('web')->name('debug.csrf.form');
+
+    Route::post('/debug/csrf-test', function (Illuminate\Http\Request $request) {
+        $request->validate([
+            'test_field' => 'required|string|max:255'
+        ]);
+        
+        return redirect()->route('debug.csrf.form')->with('success', 'CSRF verification passed! Test field: ' . $request->test_field);
+    })->middleware('web')->name('debug.csrf.post');
+
+    // CSRF Diagnostics Route
+    Route::get('/debug/csrf-diagnostics', function (Illuminate\Http\Request $request) {
+        $sessionData = session()->all();
+        
+        return response()->json([
+            'environment' => [
+                'app_env' => config('app.env'),
+                'app_debug' => config('app.debug'),
+                'app_key_exists' => !empty(config('app.key')),
+                'app_url' => config('app.url'),
+            ],
+            'session' => [
+                'driver' => config('session.driver'),
+                'lifetime' => config('session.lifetime'),
+                'expire_on_close' => config('session.expire_on_close'),
+                'encrypt' => config('session.encrypt'),
+                'cookie' => config('session.cookie'),
+                'path' => config('session.path'),
+                'domain' => config('session.domain'),
+                'secure' => config('session.secure'),
+                'http_only' => config('session.http_only'),
+                'same_site' => config('session.same_site'),
+            ],
+            'request' => [
+                'method' => $request->method(),
+                'url' => $request->url(),
+                'headers' => $request->headers->all(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'has_session' => $request->hasSession(),
+            ],
+            'current_session' => [
+                'id' => session()->getId(),
+                'token' => session()->token(),
+                'data_count' => count($sessionData),
+                'regenerated' => session()->isStarted(),
+            ],
+            'middleware' => [
+                'csrf_middleware_loaded' => class_exists('App\\Http\\Middleware\\VerifyCsrfToken'),
+                'session_middleware_loaded' => class_exists('Illuminate\\Session\\Middleware\\StartSession'),
+            ],
+            'storage' => [
+                'session_path' => storage_path('framework/sessions'),
+                'session_path_writable' => is_writable(storage_path('framework/sessions')),
+                'session_files_count' => count(glob(storage_path('framework/sessions/*'))),
+            ]
+        ], 200, [], JSON_PRETTY_PRINT);
+    })->middleware('web')->name('debug.csrf.diagnostics');
+}
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {

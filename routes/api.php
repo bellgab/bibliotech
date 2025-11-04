@@ -40,24 +40,32 @@ Route::prefix('v1')->group(function () {
 // Protected routes
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     // Books management
-    Route::post('/books', [BookController::class, 'store']);
-    Route::put('/books/{book}', [BookController::class, 'update']);
-    Route::delete('/books/{book}', [BookController::class, 'destroy']);
+    Route::middleware('role:admin,librarian')->group(function () {
+        Route::post('/books', [BookController::class, 'store']);
+        Route::put('/books/{book}', [BookController::class, 'update']);
+        Route::delete('/books/{book}', [BookController::class, 'destroy']);
+    });
     
     // Authors management
-    Route::post('/authors', [AuthorController::class, 'store']);
-    Route::put('/authors/{author}', [AuthorController::class, 'update']);
-    Route::delete('/authors/{author}', [AuthorController::class, 'destroy']);
+    Route::middleware('role:admin,librarian')->group(function () {
+        Route::post('/authors', [AuthorController::class, 'store']);
+        Route::put('/authors/{author}', [AuthorController::class, 'update']);
+        Route::delete('/authors/{author}', [AuthorController::class, 'destroy']);
+    });
     
     // Categories management
-    Route::post('/categories', [CategoryController::class, 'store']);
-    Route::put('/categories/{category}', [CategoryController::class, 'update']);
-    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+    Route::middleware('role:admin,librarian')->group(function () {
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::put('/categories/{category}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+    });
     
-    // Users management
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{user}', [UserController::class, 'show']);
-    Route::post('/users', [UserController::class, 'store']);
-    Route::put('/users/{user}', [UserController::class, 'update']);
-    Route::delete('/users/{user}', [UserController::class, 'destroy']);
+    // Users management (admin and librarian only)
+    Route::middleware('role:admin,librarian')->group(function () {
+        Route::get('/users', [UserController::class, 'index']);
+        Route::get('/users/{user}', [UserController::class, 'show']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::put('/users/{user}', [UserController::class, 'update']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
+    });
 });
